@@ -42,6 +42,13 @@
       minZoom: 2,
     }).addTo(map);
 
+    map.on('moveend', () => {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      const newUrl = `${window.location.pathname}?loc=${center.lat.toFixed(5)},${center.lng.toFixed(5)}&z=${zoom}`;
+      window.history.replaceState(null, '', newUrl);
+    });
+
     if (queryLocation.toLowerCase() !== 'world') {
       fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryLocation)}`)
         .then(res => res.json())
