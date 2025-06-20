@@ -30,7 +30,7 @@
   <script>
     const params = new URLSearchParams(window.location.search);
     const queryLocation = params.get('loc') || 'World';
-    const zoom = parseInt(params.get('z')) || 2;
+    const zoom = parseInt(params.get('z')) || 14;
 
     const map = L.map('map', {
       zoomControl: false,
@@ -50,7 +50,8 @@
             const lat = parseFloat(data[0].lat);
             const lon = parseFloat(data[0].lon);
             map.setView([lat, lon], zoom);
-            L.marker([lat, lon]).addTo(map).bindPopup(queryLocation).openPopup();
+            map.panTo(new L.LatLng(lat,lon));
+            //L.marker([lat, lon]).addTo(map).bindPopup(queryLocation).openPopup();
           }
         });
     }
