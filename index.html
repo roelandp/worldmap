@@ -5,6 +5,7 @@
   <title>Map</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
@@ -21,9 +22,28 @@
     .leaflet-attribution {
       display: none !important;
     }
+    #map-title {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      font-size: 120pt;
+      font-family: "Caprasimo", serif;
+      font-weight: 400;
+      color: black;
+      text-shadow:
+        -2px -2px 0 white,
+        2px -2px 0 white,
+        -2px 2px 0 white,
+        2px 2px 0 white;
+      z-index: 1000;
+      pointer-events: none;
+      user-select: none;
+      line-height: 0.8;
+    }
   </style>
 </head>
 <body>
+  <div id="map-title"></div>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -31,13 +51,16 @@
     const params = new URLSearchParams(window.location.search);
     const queryLocation = params.get('loc') || 'World';
     const zoom = parseInt(params.get('z')) || 14;
+    const titleParam = params.get('title');
+    const titleText = titleParam || queryLocation || 'World';
+    document.getElementById('map-title').textContent = titleText;
 
     const map = L.map('map', {
       zoomControl: false,
       attributionControl: false,
     }).setView([20, 0], zoom);
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner-lite/{z}/{x}/{y}.png', {
+    L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}.png', {
       maxZoom: 18,
       minZoom: 2,
     }).addTo(map);
@@ -45,7 +68,7 @@
     map.on('moveend', () => {
       const center = map.getCenter();
       const zoom = map.getZoom();
-      const newUrl = `${window.location.pathname}?loc=${center.lat.toFixed(5)},${center.lng.toFixed(5)}&z=${zoom}`;
+      const newUrl = `${window.location.pathname}?loc=${center.lat.toFixed(5)},${center.lng.toFixed(5)}&z=${zoom}${titleParam ? `&title=${encodeURIComponent(titleParam)}` : ''}`;
       window.history.replaceState(null, '', newUrl);
     });
 
@@ -57,8 +80,8 @@
             const lat = parseFloat(data[0].lat);
             const lon = parseFloat(data[0].lon);
             map.setView([lat, lon], zoom);
-            map.panTo(new L.LatLng(lat,lon));
-            //L.marker([lat, lon]).addTo(map).bindPopup(queryLocation).openPopup();
+            map.panTo(new L.LatLng(lat, lon));
+            // L.marker([lat, lon]).addTo(map).bindPopup(queryLocation).openPopup();
           }
         });
     }
