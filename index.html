@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    #map {
+      height: 100vh;
+      width: 100vw;
+      filter: grayscale(100%);
+    }
+    .leaflet-control-container,
+    .leaflet-attribution {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const queryLocation = params.get('loc') || 'World';
+    const zoom = parseInt(params.get('z')) || 2;
+
+    const map = L.map('map', {
+      zoomControl: false,
+      attributionControl: false,
+    }).setView([20, 0], zoom);
+
+    L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner-lite/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      minZoom: 2,
+    }).addTo(map);
+
+    if (queryLocation.toLowerCase() !== 'world') {
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryLocation)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.length > 0) {
+            const lat = parseFloat(data[0].lat);
+            const lon = parseFloat(data[0].lon);
+            map.setView([lat, lon], zoom);
+            L.marker([lat, lon]).addTo(map).bindPopup(queryLocation).openPopup();
+          }
+        });
+    }
+  </script>
+</body>
+</html>
